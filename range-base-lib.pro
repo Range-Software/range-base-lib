@@ -16,7 +16,6 @@ SOURCES += \
     src/rbl_book.cpp \
     src/rbl_bvector.cpp \
     src/rbl_error.cpp \
-    src/rbl_gl_light.cpp \
     src/rbl_imatrix.cpp \
     src/rbl_ivector.cpp \
     src/rbl_job.cpp \
@@ -50,7 +49,6 @@ HEADERS += \
     include/rbl_bvector.h \
     include/rbl_distance_vector.h \
     include/rbl_error.h \
-    include/rbl_gl_light.h \
     include/rbl_imatrix.h \
     include/rbl_ivector.h \
     include/rbl_job.h \
