@@ -1,5 +1,5 @@
-#ifndef RBL_MACROS_H
-#define RBL_MACROS_H
+#ifndef RBL_UTILS_H
+#define RBL_UTILS_H
 
 #include <QString>
 
@@ -112,4 +112,4 @@ namespace RUtil
     }
 } // RUtil
 
-#endif /* RBL_MACROS_H */
+#endif /* RBL_UTILS_H */
