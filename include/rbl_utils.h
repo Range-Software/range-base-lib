@@ -2,6 +2,7 @@
 #define RBL_UTILS_H
 
 #include <QString>
+#include <QLocale>
 
 #include <limits.h>
 #include <vector>
@@ -109,6 +110,15 @@ namespace RUtil
         }
 
         return exp;
+    }
+
+    inline QString readableBytes(quint64 bytes)
+    {
+        uint i = uint(std::floor(std::log(bytes)/std::log(1024)));
+
+        static const char *sizes[] = { "bytes", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+        return QLocale::system().toString(double(bytes) / (std::pow(1024,i)), 'G', 3) + " " + sizes[i];
     }
 } // RUtil
 
