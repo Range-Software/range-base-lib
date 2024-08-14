@@ -12,10 +12,10 @@
 
 #define R_FUNCTION __PRETTY_FUNCTION__
 
-#define R_LOG_LEVEL_NORMAL static_cast<RLogLevel>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error)
-#define R_LOG_LEVEL_DETAIL static_cast<RLogLevel>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning)
-#define R_LOG_LEVEL_DEBUG  static_cast<RLogLevel>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning | RMessage::Type::Debug)
-#define R_LOG_LEVEL_TRACE  static_cast<RLogLevel>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning | RMessage::Type::Debug | RMessage::Type::Trace)
+#define R_LOG_LEVEL_NORMAL static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error)
+#define R_LOG_LEVEL_DETAIL static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning)
+#define R_LOG_LEVEL_DEBUG  static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning | RMessage::Type::Debug)
+#define R_LOG_LEVEL_TRACE  static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning | RMessage::Type::Debug | RMessage::Type::Trace)
 
 #define R_LOG_TRACE RLogger::trace("(Thread: %p) %s @ %d\n",QThread::currentThread(),__FILE__,__LINE__)
 #define R_LOG_TRACE_MESSAGE(_message) RLogger::trace("(Thread: %p) %s @ %d: %s\n",QThread::currentThread(),__FILE__,__LINE__,_message)
@@ -46,6 +46,7 @@
   (_level == R_LOG_LEVEL_TRACE)      \
 )
 
+typedef int RLogLevelMask;
 typedef RMessage::Type RLogLevel;
 
 typedef void (*RLogHandler)(const RMessage &message);
@@ -72,7 +73,7 @@ class RLogger
         //! Log file name.
         QString logFileName;
         //! Log level.
-        RLogLevel logLevel;
+        RLogLevelMask logLevel;
         //! Logger halted state.
         //! If set to halt then all messages will be stored in history and
         //! printed after the logger will be unhalted.
@@ -95,7 +96,7 @@ class RLogger
     public:
 
         //! Constructor
-        RLogger(RLogLevel logLevel = R_LOG_LEVEL_DETAIL);
+        RLogger(RLogLevelMask logLevel = R_LOG_LEVEL_DETAIL);
 
         //! Copy constructor.
         RLogger(const RLogger &logger);
@@ -110,10 +111,10 @@ class RLogger
         static RLogger & getInstance();
 
         //! Return log level.
-        RLogLevel getLevel() const;
+        RLogLevelMask getLevel() const;
 
         //! Set log level.
-        void setLevel(RLogLevel level);
+        void setLevel(RLogLevelMask level);
 
         //! Return halt state of the logger.
         bool getHalted() const;

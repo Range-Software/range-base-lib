@@ -27,7 +27,7 @@ void RLogger::_init(const RLogger *pLogger)
 } /* RLogger::_init */
 
 
-RLogger::RLogger(RLogLevel logLevel)
+RLogger::RLogger(RLogLevelMask logLevel)
     : logLevel(logLevel)
     , halted(false)
     , printTime(true)
@@ -65,9 +65,9 @@ RLogger & RLogger::getInstance()
 } /* RLogger::getInstance */
 
 
-RLogLevel RLogger::getLevel() const
+RLogLevelMask RLogger::getLevel() const
 {
-    RLogLevel tmpLevel;
+    RLogLevelMask tmpLevel;
     RLocker::lock();
     tmpLevel = this->logLevel;
     RLocker::unlock();
@@ -75,7 +75,7 @@ RLogLevel RLogger::getLevel() const
 } /* RLogger::getLevel */
 
 
-void RLogger::setLevel(RLogLevel level)
+void RLogger::setLevel(RLogLevelMask level)
 {
     R_ERROR_ASSERT(R_LOG_LEVEL_IS_VALID(level));
 
