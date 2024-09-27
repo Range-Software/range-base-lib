@@ -1,6 +1,8 @@
 #ifndef RBL_STATISTICS_H
 #define RBL_STATISTICS_H
 
+#include <QJsonObject>
+
 #include "rbl_r3vector.h"
 #include "rbl_rmatrix.h"
 
@@ -96,6 +98,9 @@ class RStatistics
 
         //! Print statistics.
         void print() const;
+
+        //! To Json.
+        QJsonObject toJson() const;
 
     protected:
 

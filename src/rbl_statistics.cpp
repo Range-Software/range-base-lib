@@ -57,6 +57,20 @@ void RStatistics::print() const
     RLogger::info("Percentile 95: % 14g\n",this->getP95());
 }
 
+QJsonObject RStatistics::toJson() const
+{
+    QJsonObject obj;
+
+    obj["minimum"] = this->getMin();
+    obj["maximum"] = this->getMax();
+    obj["average"] = this->getAvg();
+    obj["median"] = this->getMed();
+    obj["p05"] = this->getP05();
+    obj["p95"] = this->getP95();
+
+    return obj;
+}
+
 void RStatistics::calculate(const RRVector &values, uint nDistValues, bool sortValues)
 {
     this->nValues = (uint)values.size();
