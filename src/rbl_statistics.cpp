@@ -49,6 +49,7 @@ RStatistics &RStatistics::operator =(const RStatistics &statistics)
 
 void RStatistics::print() const
 {
+    RLogger::info("Size:          % 14u\n",this->getNValues());
     RLogger::info("Minimum:       % 14g\n",this->getMin());
     RLogger::info("Maximum:       % 14g\n",this->getMax());
     RLogger::info("Average:       % 14g\n",this->getAvg());
@@ -61,6 +62,7 @@ QJsonObject RStatistics::toJson() const
 {
     QJsonObject obj;
 
+    obj["size"] = qint64(this->getNValues());
     obj["minimum"] = this->getMin();
     obj["maximum"] = this->getMax();
     obj["average"] = this->getAvg();
