@@ -12,6 +12,7 @@
 
 namespace RVendor
 {
+    static const QString packageName(PACKAGENAME);
     static const QString name(NAME);
     static const QString shortName(SHORTNAME);
     static const QString familyName(FAMILYNAME);
