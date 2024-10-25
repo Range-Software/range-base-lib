@@ -10,7 +10,11 @@
 
 #include "rbl_message.h"
 
+#ifdef _MSC_VER
+#define R_FUNCTION __FUNCSIG__
+#else
 #define R_FUNCTION __PRETTY_FUNCTION__
+#endif
 
 #define R_LOG_LEVEL_NORMAL static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error)
 #define R_LOG_LEVEL_DETAIL static_cast<RLogLevelMask>(RMessage::Type::Info | RMessage::Type::Notice | RMessage::Type::Error | RMessage::Type::Warning)
