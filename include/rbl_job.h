@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QList>
 
+#include "rbl_job_settings.h"
+
 class RJob : public QObject
 {
 
@@ -12,27 +14,20 @@ class RJob : public QObject
 
     protected:
 
+        //! Default job settings.
+        static RJobSettings defaultJobSettings;
+
         //! Job ID.
         uint id;
-
         //! Indicates whether the job is finished or not.
         bool jobFinished;
+        //! Job settings.
+        RJobSettings jobSettings;
 
-        //! Whether the job should be automatically deleted after
-        //! completion.
-        bool autoDelete;
+    public:
 
-        //! Whether the job is blocking.
-        bool blocking;
-
-        //! Whether the job can run in parallel.
-        bool parallel;
-
-        //! Number of OMP threads.
-        uint nOmpThreads;
-
-        //! List of processes to lock when emitting signals.
-        QList<QMutex*> emitMutexList;
+        //! Set default job settings.
+        static void setDefaultJobSettings(const RJobSettings &jobSettings);
 
     public:
 

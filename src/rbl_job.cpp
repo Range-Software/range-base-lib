@@ -7,14 +7,17 @@
 
 static uint lastID = 0;
 
+RJobSettings RJob::defaultJobSettings = RJobSettings();
+
+void RJob::setDefaultJobSettings(const RJobSettings &jobSettings)
+{
+    RJob::defaultJobSettings = jobSettings;
+}
+
 RJob::RJob(QObject *parent)
     : QObject(parent)
     , id(++lastID)
     , jobFinished(false)
-    , autoDelete(true)
-    , blocking(true)
-    , parallel(false)
-    , nOmpThreads(1)
 {
     R_LOG_TRACE;
 }
@@ -34,44 +37,44 @@ bool RJob::isFinished() const
 bool RJob::getAutoDelete() const
 {
     R_LOG_TRACE;
-    return this->autoDelete;
+    return this->jobSettings.getAutoDelete();
 }
 
 void RJob::setAutoDelete(bool autoDelete)
 {
     R_LOG_TRACE;
-    this->autoDelete = autoDelete;
+    this->jobSettings.setAutoDelete(autoDelete);
 }
 
 void RJob::setBlocking(bool blocking)
 {
     R_LOG_TRACE;
-    this->blocking = blocking;
+    this->jobSettings.setBlocking(blocking);
 }
 
 void RJob::setParallel(bool parallel)
 {
-    this->parallel = parallel;
+    this->jobSettings.setParallel(parallel);
 }
 
 bool RJob::getParallel() const
 {
-    return this->parallel;
+    return this->jobSettings.getParallel();
 }
 
 void RJob::setNOmpThreads(uint nOmpThreads)
 {
-    this->nOmpThreads = nOmpThreads;
+    this->jobSettings.setNOmpThreads(nOmpThreads);
 }
 
 void RJob::registerEmitMutex(QMutex *pEmitMutexList)
 {
-    this->emitMutexList.append(pEmitMutexList);
+    this->jobSettings.registerEmitMutex(pEmitMutexList);
 }
 
 void RJob::lockEmitMutexes()
 {
-    for (QMutex *pMutex : this->emitMutexList)
+    for (QMutex *pMutex : this->jobSettings.getEmitMutexList())
     {
         pMutex->lock();
     }
@@ -79,7 +82,7 @@ void RJob::lockEmitMutexes()
 
 void RJob::unlockEmitMutexes()
 {
-    for (QMutex *pMutex : this->emitMutexList)
+    for (QMutex *pMutex : this->jobSettings.getEmitMutexList())
     {
         pMutex->unlock();
     }
@@ -90,18 +93,18 @@ void RJob::exec()
     R_LOG_TRACE_IN;
     this->lockEmitMutexes();
     emit this->started();
-    if (this->blocking)
+    if (this->jobSettings.getBlocking())
     {
         emit this->isBlocking(true);
     }
     this->unlockEmitMutexes();
 #ifdef _OPENMP
-    omp_set_num_threads(this->nOmpThreads);
+    omp_set_num_threads(this->jobSettings.getNOmpThreads());
 #endif
     int retVal = this->run();
     this->lockEmitMutexes();
     this->jobFinished = true;
-    if (this->blocking)
+    if (this->jobSettings.getBlocking())
     {
         emit this->isBlocking(false);
     }

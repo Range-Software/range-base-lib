@@ -20,6 +20,7 @@ SOURCES += \
     src/rbl_ivector.cpp \
     src/rbl_job.cpp \
     src/rbl_job_manager.cpp \
+    src/rbl_job_settings.cpp \
     src/rbl_limit_box.cpp \
     src/rbl_locker.cpp \
     src/rbl_logger.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     include/rbl_ivector.h \
     include/rbl_job.h \
     include/rbl_job_manager.h \
+    include/rbl_job_settings.h \
     include/rbl_limit_box.h \
     include/rbl_locker.h \
     include/rbl_logger.h \
