@@ -14,6 +14,11 @@ void RJob::setDefaultJobSettings(const RJobSettings &jobSettings)
     RJob::defaultJobSettings = jobSettings;
 }
 
+const RJobSettings &RJob::getDefaultJobSettings()
+{
+    return RJob::defaultJobSettings;
+}
+
 RJob::RJob(QObject *parent)
     : QObject(parent)
     , id(++lastID)

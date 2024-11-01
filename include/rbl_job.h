@@ -29,6 +29,9 @@ class RJob : public QObject
         //! Set default job settings.
         static void setDefaultJobSettings(const RJobSettings &jobSettings);
 
+        //! Return default job settings.
+        static const RJobSettings & getDefaultJobSettings();
+
     public:
 
         //! Constructor.
