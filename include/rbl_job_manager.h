@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QQueue>
 #include <QList>
-#include <QThread>
 
 #include "rbl_job.h"
 
@@ -54,6 +53,9 @@ class RJobManager : public QObject
         //! Signal emitted when job is finished.
         void jobFinished();
 
+        //! Signal emitted when job is finished.
+        void jobFailed();
+
     protected slots:
 
         //! Called when blocking() signal is emitted.
@@ -64,6 +66,9 @@ class RJobManager : public QObject
 
         //! Called when finished() signal is emitted.
         void onJobFinished();
+
+        //! Called when failed() signal is emitted.
+        void onJobFailed();
 
     protected:
 

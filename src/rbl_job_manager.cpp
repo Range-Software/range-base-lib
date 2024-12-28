@@ -1,29 +1,7 @@
-#include <QList>
+#include <QThreadPool>
 
 #include "rbl_logger.h"
 #include "rbl_job_manager.h"
-
-class RJobThread : public QThread
-{
-    public:
-
-    explicit RJobThread(QObject *parent = nullptr) : QThread(parent)
-    {
-        R_LOG_TRACE_IN;
-        QObject::connect(this,&QThread::finished,this,&RJobThread::deleteThread);
-        R_LOG_TRACE_OUT;
-    }
-
-    protected slots:
-
-        void deleteThread()
-        {
-            R_LOG_TRACE_IN;
-            this->wait();
-            this->deleteLater();
-            R_LOG_TRACE_OUT;
-        }
-};
 
 RJobManager::RJobManager(QObject *parent)
     : QObject(parent)
@@ -128,6 +106,15 @@ void RJobManager::onJobFinished()
     R_LOG_TRACE_OUT;
 }
 
+void RJobManager::onJobFailed()
+{
+    R_LOG_TRACE_IN;
+    emit this->jobFailed();
+    this->processWaitingJobs();
+    this->processFinishedJobs();
+    R_LOG_TRACE_OUT;
+}
+
 void RJobManager::processWaitingJobs()
 {
     R_LOG_TRACE_IN;
@@ -154,20 +141,14 @@ void RJobManager::startJob(RJob *job)
     R_LOG_TRACE_IN;
     this->jobIsStarting = true;
 
-    RJobThread *runningThread = new RJobThread(this);
-
-    job->moveToThread(runningThread);
-
     QObject::connect(job,&RJob::isBlocking,this,&RJobManager::onJobBlocking);
-    QObject::connect(runningThread,&QThread::started,this,&RJobManager::onJobStarted);
-    QObject::connect(runningThread,&QThread::started,job,&RJob::process);
-    QObject::connect(job,&RJob::finished,runningThread,&QThread::quit);
-    QObject::connect(job,&RJob::failed,runningThread,&QThread::quit);
-    QObject::connect(runningThread,&QThread::finished,this,&RJobManager::onJobFinished);
+    QObject::connect(job,&RJob::started,this,&RJobManager::onJobStarted);
+    QObject::connect(job,&RJob::finished,this,&RJobManager::onJobFinished);
+    QObject::connect(job,&RJob::failed,this,&RJobManager::onJobFailed);
+
+    QThreadPool::globalInstance()->start(job);
 
     this->runningJobs.append(job);
-
-    runningThread->start();
     R_LOG_TRACE_OUT;
 }
 

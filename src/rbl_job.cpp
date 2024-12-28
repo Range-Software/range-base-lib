@@ -19,12 +19,43 @@ const RJobSettings &RJob::getDefaultJobSettings()
     return RJob::defaultJobSettings;
 }
 
-RJob::RJob(QObject *parent)
-    : QObject(parent)
-    , id(++lastID)
+RJob::RJob()
+    : id(++lastID)
     , jobFinished(false)
 {
     R_LOG_TRACE;
+}
+
+void RJob::run()
+{
+    R_LOG_TRACE_IN;
+    this->lockEmitMutexes();
+    emit this->started();
+    if (this->jobSettings.getBlocking())
+    {
+        emit this->isBlocking(true);
+    }
+    this->unlockEmitMutexes();
+#ifdef _OPENMP
+    omp_set_num_threads(this->jobSettings.getNOmpThreads());
+#endif
+    int retVal = this->perform();
+    this->lockEmitMutexes();
+    this->jobFinished = true;
+    if (this->jobSettings.getBlocking())
+    {
+        emit this->isBlocking(false);
+    }
+    this->unlockEmitMutexes();
+    if (retVal == 0)
+    {
+        emit this->finished();
+    }
+    else
+    {
+        emit this->failed();
+    }
+    R_LOG_TRACE_OUT;
 }
 
 uint RJob::getID()
@@ -91,49 +122,4 @@ void RJob::unlockEmitMutexes()
     {
         pMutex->unlock();
     }
-}
-
-void RJob::exec()
-{
-    R_LOG_TRACE_IN;
-    this->lockEmitMutexes();
-    emit this->started();
-    if (this->jobSettings.getBlocking())
-    {
-        emit this->isBlocking(true);
-    }
-    this->unlockEmitMutexes();
-#ifdef _OPENMP
-    omp_set_num_threads(this->jobSettings.getNOmpThreads());
-#endif
-    int retVal = this->run();
-    this->lockEmitMutexes();
-    this->jobFinished = true;
-    if (this->jobSettings.getBlocking())
-    {
-        emit this->isBlocking(false);
-    }
-    this->unlockEmitMutexes();
-    if (retVal == 0)
-    {
-        emit this->finished();
-    }
-    else
-    {
-        emit this->failed();
-    }
-    R_LOG_TRACE_OUT;
-}
-
-void RJob::process()
-{
-    R_LOG_TRACE_IN;
-    this->exec();
-    R_LOG_TRACE_OUT;
-}
-
-int RJob::run()
-{
-    R_LOG_TRACE;
-    return 0;
 }

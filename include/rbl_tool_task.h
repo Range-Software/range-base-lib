@@ -19,12 +19,12 @@ class RToolTask : public RJob
     public:
 
         //! Constructor.
-        explicit RToolTask(const RToolInput &toolInput, QObject *parent = nullptr);
+        explicit RToolTask(const RToolInput &toolInput);
 
     protected:
 
         //! Run task.
-        int run();
+        virtual int perform() override final;
 
     signals:
 

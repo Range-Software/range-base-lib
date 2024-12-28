@@ -2,13 +2,12 @@
 #include "rbl_logger.h"
 #include "rbl_tool_task.h"
 
-RToolTask::RToolTask(const RToolInput &toolInput, QObject *parent)
-    : RJob(parent)
-    , toolInput(toolInput)
+RToolTask::RToolTask(const RToolInput &toolInput)
+    : toolInput(toolInput)
 {
 }
 
-int RToolTask::run()
+int RToolTask::perform()
 {
     foreach (const QSharedPointer<RToolAction> &action, this->toolInput.actions)
     {

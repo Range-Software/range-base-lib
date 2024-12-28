@@ -1,13 +1,14 @@
 #ifndef RBL_JOB_H
 #define RBL_JOB_H
 
-#include <QMutex>
 #include <QObject>
+#include <QRunnable>
+#include <QMutex>
 #include <QList>
 
 #include "rbl_job_settings.h"
 
-class RJob : public QObject
+class RJob : public QObject, public QRunnable
 {
 
     Q_OBJECT
@@ -30,12 +31,16 @@ class RJob : public QObject
         static void setDefaultJobSettings(const RJobSettings &jobSettings);
 
         //! Return default job settings.
-        static const RJobSettings & getDefaultJobSettings();
+        static const RJobSettings &getDefaultJobSettings();
 
     public:
 
         //! Constructor.
-        explicit RJob(QObject *parent = nullptr);
+        explicit RJob();
+
+        //! Overloaded run function.
+        //! Emit signals.
+        virtual void run();
 
         //! Return job ID.
         uint getID();
@@ -66,6 +71,10 @@ class RJob : public QObject
         //! Register mutex to be locked.
         void registerEmitMutex(QMutex *pEmitMutexList);
 
+    protected:
+
+        virtual int perform() = 0;
+
     private:
 
         //! Lock emit mutextes.
@@ -73,11 +82,6 @@ class RJob : public QObject
 
         //! Unlock emit mutextes.
         void unlockEmitMutexes();
-
-    public slots:
-
-        //! Process job.
-        void process();
 
     signals:
 
@@ -93,16 +97,8 @@ class RJob : public QObject
         //! Emitted when job has failed.
         void failed();
 
-    protected:
 
-        //! Execute job.
-        //! Called by process() and is responsible for calling run()
-        //! and for emmiting signals.
-        void exec();
 
-        //! Function performing actual job.
-        //! Inheriting class should reimplement this function.
-        virtual int run();
 };
 
 #endif /* RBL_JOB_H */
