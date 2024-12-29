@@ -70,18 +70,6 @@ bool RJob::isFinished() const
     return this->jobFinished;
 }
 
-bool RJob::getAutoDelete() const
-{
-    R_LOG_TRACE;
-    return this->jobSettings.getAutoDelete();
-}
-
-void RJob::setAutoDelete(bool autoDelete)
-{
-    R_LOG_TRACE;
-    this->jobSettings.setAutoDelete(autoDelete);
-}
-
 void RJob::setBlocking(bool blocking)
 {
     R_LOG_TRACE;

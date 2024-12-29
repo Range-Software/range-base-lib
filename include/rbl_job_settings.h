@@ -9,9 +9,6 @@ class RJobSettings
 
     protected:
 
-        //! Whether the job should be automatically deleted after
-        //! completion.
-        bool autoDelete;
         //! Whether the job is blocking.
         bool blocking;
         //! Whether the job can run in parallel.
@@ -39,14 +36,6 @@ class RJobSettings
 
         //! Assignment operator.
         RJobSettings &operator =(const RJobSettings &jobSettings);
-
-        //! Return information on whether the job should be
-        //! automatically deleted after completion.
-        bool getAutoDelete() const;
-
-        //! Set whether the job should be automatically deleted after
-        //! completion.
-        void setAutoDelete(bool autoDelete);
 
         //! Return information on whether the job is blocking.
         bool getBlocking() const;

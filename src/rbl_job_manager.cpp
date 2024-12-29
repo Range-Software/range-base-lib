@@ -146,6 +146,8 @@ void RJobManager::startJob(RJob *job)
     QObject::connect(job,&RJob::finished,this,&RJobManager::onJobFinished);
     QObject::connect(job,&RJob::failed,this,&RJobManager::onJobFailed);
 
+    job->setAutoDelete(false);
+
     QThreadPool::globalInstance()->start(job);
 
     this->runningJobs.append(job);
@@ -180,10 +182,7 @@ uint RJobManager::removeFinishedJobs()
     while ((job = this->findFinishedJob()) != 0)
     {
         nRemoved = this->runningJobs.removeAll(job);
-        if (job->getAutoDelete())
-        {
-            delete job;
-        }
+        job->deleteLater();
         if (nRemoved == 0)
         {
             RLogger::error("No job could be found in the running queue.\n");

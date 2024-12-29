@@ -4,7 +4,6 @@ void RJobSettings::_init(const RJobSettings *pJobSettings)
 {
     if (pJobSettings)
     {
-        this->autoDelete = pJobSettings->autoDelete;
         this->blocking = pJobSettings->blocking;
         this->parallel = pJobSettings->parallel;
         this->nOmpThreads = pJobSettings->nOmpThreads;
@@ -12,8 +11,7 @@ void RJobSettings::_init(const RJobSettings *pJobSettings)
 }
 
 RJobSettings::RJobSettings()
-    : autoDelete{true}
-    , blocking{true}
+    : blocking{true}
     , parallel{false}
     , nOmpThreads{1}
 {
@@ -34,16 +32,6 @@ RJobSettings &RJobSettings::operator =(const RJobSettings &jobSettings)
 {
     this->_init(&jobSettings);
     return (*this);
-}
-
-bool RJobSettings::getAutoDelete() const
-{
-    return this->autoDelete;
-}
-
-void RJobSettings::setAutoDelete(bool autoDelete)
-{
-    this->autoDelete = autoDelete;
 }
 
 bool RJobSettings::getBlocking() const

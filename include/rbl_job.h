@@ -48,14 +48,6 @@ class RJob : public QObject, public QRunnable
         //! Return information on whether the job is finished or not.
         bool isFinished() const;
 
-        //! Return information on whether the job should be
-        //! automatically deleted after completion.
-        bool getAutoDelete() const;
-
-        //! Set whether the job should be automatically deleted after
-        //! completion.
-        void setAutoDelete(bool autoDelete);
-
         //! Set whether the job is blocking.
         void setBlocking(bool blocking);
 
