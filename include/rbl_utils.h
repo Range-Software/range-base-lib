@@ -10,21 +10,23 @@
 
 #include "rbl_version.h"
 
-namespace RVendor
+class RVendor
 {
-    static const QString packageName(PACKAGENAME);
-    static const QString name(NAME);
-    static const QString shortName(SHORTNAME);
-    static const QString familyName(FAMILYNAME);
-    static const QString title(TITLE);
-    static const QString description(DESCRIPTION);
-    static const QString author(AUTHOR);
-    static const QString email(EMAIL);
-    static const QString www(WWW);
-    static const QString www_domain(WWWDOMAIN);
-    static const RVersion version(VERSION);
-    static const short year = YEAR;
-}
+    public:
+
+        static const QString &packageName() { static QString _val = QStringLiteral(PACKAGENAME); return _val; }
+        static const QString &name() { static QString _val = QStringLiteral(NAME); return _val; }
+        static const QString &shortName() { static QString _val = QStringLiteral(SHORTNAME); return _val; }
+        static const QString &familyName() { static QString _val = QStringLiteral(FAMILYNAME); return _val; }
+        static const QString &title() { static QString _val = QStringLiteral(TITLE); return _val; }
+        static const QString &description() { static QString _val = QStringLiteral(DESCRIPTION); return _val; }
+        static const QString &author() { static QString _val = QStringLiteral(AUTHOR); return _val; }
+        static const QString &email() { static QString _val = QStringLiteral(EMAIL); return _val; }
+        static const QString &www() { static QString _val = QStringLiteral(WWW); return _val; }
+        static const QString &wwwDomain() { static QString _val = QStringLiteral(WWWDOMAIN); return _val; }
+        static const RVersion &version() { static RVersion _val(VERSION); return _val; }
+        static short year() { return YEAR; }
+};
 
 namespace RConstants
 {

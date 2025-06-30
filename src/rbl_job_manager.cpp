@@ -189,7 +189,7 @@ uint RJobManager::removeFinishedJobs()
         }
         else if (nRemoved > 1)
         {
-            RLogger::error("Multiple occurences of one jobe wre found in the running queue.\n");
+            RLogger::error("Multiple occurences of one job were found in the running queue.\n");
             nRemovedTotal += (uint) nRemoved;
         }
         else if (nRemoved < 0)

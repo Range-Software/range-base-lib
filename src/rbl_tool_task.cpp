@@ -19,6 +19,7 @@ int RToolTask::perform()
         catch (const RError &error)
         {
             RLogger::error("Failed to perform action. %s\n", error.getMessage().toUtf8().constData());
+            action->setError(error.getType(),error.getMessage());
             emit this->actionFailed(action);
             return 1;
         }

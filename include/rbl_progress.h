@@ -100,7 +100,7 @@ void RProgressFinalize(const QString &message = QString());
 
 void RProgressPrint(double fraction);
 
-void RProgressPrint(uint step, uint nSteps);
+void RProgressPrint(uint64_t step, uint64_t nSteps);
 
 void RProgressPrintToLog(bool printToLog);
 

@@ -99,6 +99,10 @@ void RStatistics::calculate(const RRVector &values, uint nDistValues, bool sortV
 
 double RStatistics::findMinimumValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     bool firstValue = true;
     for (uint i=0;i<values.size();i++)
@@ -118,6 +122,10 @@ double RStatistics::findMinimumValue(const RRVector &values)
 
 double RStatistics::findMaximumValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     bool firstValue = true;
     for (uint i=0;i<values.size();i++)
@@ -137,6 +145,10 @@ double RStatistics::findMaximumValue(const RRVector &values)
 
 double RStatistics::findMinimumAbsoluteValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     bool firstValue = true;
     for (uint i=0;i<values.size();i++)
@@ -156,6 +168,10 @@ double RStatistics::findMinimumAbsoluteValue(const RRVector &values)
 
 double RStatistics::findMaximumAbsoluteValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     bool firstValue = true;
     for (uint i=0;i<values.size();i++)
@@ -175,6 +191,10 @@ double RStatistics::findMaximumAbsoluteValue(const RRVector &values)
 
 double RStatistics::findAverageValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     for (uint i=0;i<values.size();i++)
     {
@@ -189,6 +209,10 @@ double RStatistics::findAverageValue(const RRVector &values)
 
 double RStatistics::findMedianValue(const RRVector &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double value = 0.0;
     uint nv = (uint)values.size();
     uint pos = 0;
@@ -211,6 +235,10 @@ double RStatistics::findMedianValue(const RRVector &values)
 
 double RStatistics::findPercentileValue(const RRVector &values, double percentile)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     RRVector vs(values);
     double n, p, vp, vd;
     uint k;
@@ -252,6 +280,11 @@ double RStatistics::findPercentileValue(const RRVector &values, double percentil
 RRMatrix RStatistics::findDistributedValues(const RRVector &values, uint nDistValues)
 {
     RRMatrix dist(2,nDistValues);
+    if (values.size() == 0)
+    {
+        dist.fill(0.0);
+        return dist;
+    }
 
     double llim,  ulim;
     double sllim, sulim;
@@ -291,6 +324,10 @@ RRMatrix RStatistics::findDistributedValues(const RRVector &values, uint nDistVa
 
 double RStatistics::findMinimumMagnitude(const std::vector<RR3Vector> &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double minMag = 0.0;
     for (uint i=0;i<values.size();i++)
     {
@@ -308,6 +345,10 @@ double RStatistics::findMinimumMagnitude(const std::vector<RR3Vector> &values)
 
 double RStatistics::findMaximumMagnitude(const std::vector<RR3Vector> &values)
 {
+    if (values.size() == 0)
+    {
+        return 0.0;
+    }
     double maxMag = 0.0;
     for (uint i=0;i<values.size();i++)
     {

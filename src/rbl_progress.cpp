@@ -191,9 +191,9 @@ void RProgressPrint(double fraction)
 } /* RProgressPrint */
 
 
-void RProgressPrint(uint step, uint nSteps)
+void RProgressPrint(uint64_t step, uint64_t nSteps)
 {
-    RProgress::getInstance().print((double)step/(double)nSteps);
+    RProgress::getInstance().print(double(step)/double(nSteps));
 } /* RProgressPrint */
 
 

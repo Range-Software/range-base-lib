@@ -179,7 +179,7 @@ RArgumentOption RArgumentOption::generateHelpOption()
 
 RArgumentOption RArgumentOption::generateVersionOption()
 {
-    return RArgumentOption("version",Switch,QVariant(RVendor::version.toString()),"Print version",Help,true);
+    return RArgumentOption("version",Switch,QVariant(RVendor::version().toString()),"Print version",Help,true);
 }
 
 bool RArgumentOption::isOption(const QString &argument)

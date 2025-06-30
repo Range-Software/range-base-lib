@@ -1,5 +1,4 @@
 #include <QStringList>
-#include <QTextDocument>
 #include <QDate>
 #include <QRegularExpression>
 
@@ -158,7 +157,7 @@ void RArgumentsParser::printHelp() const
 
 void RArgumentsParser::printVersion() const
 {
-    RLogger::info("VERSION=%s\n",RVendor::version.toString().toUtf8().constData());
+    RLogger::info("VERSION=%s\n",RVendor::version().toString().toUtf8().constData());
 }
 
 void RArgumentsParser::printHeader(const QString &applicationName)
@@ -170,10 +169,10 @@ void RArgumentsParser::printHeader(const QString &applicationName)
     RLogger::info("|_| \\_\\__,_|_| |_|\\__, |\\___| |____/ \\___/|_|  \\__| \\_/\\_/ \\__,_|_|  \\___|\n");
     RLogger::info("                  |___/                                                   \n");
     RLogger::info("\n");
-    RLogger::info("%s %s\n",RVendor::name.toUtf8().constData(),applicationName.toUtf8().constData());
-    RLogger::info("%s\n",RVendor::description.toUtf8().constData());
-    RLogger::info("%s\n",RVendor::title.toUtf8().constData());
-    RLogger::info("Version: %s\n",RVendor::version.toString().toUtf8().constData());
+    RLogger::info("%s %s\n",RVendor::name().toUtf8().constData(),applicationName.toUtf8().constData());
+    RLogger::info("%s\n",RVendor::description().toUtf8().constData());
+    RLogger::info("%s\n",RVendor::title().toUtf8().constData());
+    RLogger::info("Version: %s\n",RVendor::version().toString().toUtf8().constData());
     RLogger::info("--------------------------------------------------------------------------\n");
     RLogger::info("\n");
 }
@@ -182,9 +181,9 @@ void RArgumentsParser::printFooter()
 {
     RLogger::info("\n");
     RLogger::info("--------------------------------------------------------------------------\n");
-    RLogger::info("%s (c) %d\n",RVendor::author.toUtf8().constData(),RVendor::year);
-    RLogger::info("%s\n",RVendor::email.toUtf8().constData());
-    RLogger::info("%s\n",RVendor::www.toUtf8().constData());
+    RLogger::info("%s (c) %hd\n",RVendor::author().toUtf8().constData(),RVendor::year());
+    RLogger::info("%s\n",RVendor::email().toUtf8().constData());
+    RLogger::info("%s\n",RVendor::www().toUtf8().constData());
 }
 
 void RArgumentsParser::processArgumentList(const QStringList &argumentList)
@@ -246,6 +245,8 @@ bool RArgumentsParser::processArgument(const QString &argument, RArgumentOption 
     QString flag;
     QString value;
 
+    static QRegularExpression re("^[-]*");
+
     if (argument.size() < 2)
     {
         return false;
@@ -267,7 +268,7 @@ bool RArgumentsParser::processArgument(const QString &argument, RArgumentOption 
         }
 
         flag = argument.section('=',0,0);
-        flag.remove(QRegularExpression("^[-]*"));
+        flag.remove(re);
         value = argument.section('=',1);
     }
 
