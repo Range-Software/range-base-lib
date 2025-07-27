@@ -1,7 +1,7 @@
 #ifndef RBL_IVECTOR_H
 #define RBL_IVECTOR_H
 
-#include <qtypes.h>
+#include <QtCore/QtGlobal>
 #include <vector>
 
 //! Vector class.

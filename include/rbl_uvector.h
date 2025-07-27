@@ -1,7 +1,7 @@
 #ifndef RBL_UVECTOR_H
 #define RBL_UVECTOR_H
 
-#include <qtypes.h>
+#include <QtCore/QtGlobal>
 #include <vector>
 
 //! Unsigned integer vector class.

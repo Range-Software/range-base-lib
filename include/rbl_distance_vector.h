@@ -1,7 +1,7 @@
 #ifndef RBL_DISTANCE_VECTOR_H
 #define RBL_DISTANCE_VECTOR_H
 
-#include <qtypes.h>
+#include <QtCore/QtGlobal>
 #include <vector>
 #include <set>
 #include <algorithm>
