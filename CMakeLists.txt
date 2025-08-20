@@ -73,7 +73,7 @@ target_include_directories(range-base-lib
 )
 
 target_link_libraries(range-base-lib
-    PRIVATE
+    PUBLIC
         Qt6::Core
         common_defines
 )

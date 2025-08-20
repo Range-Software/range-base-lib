@@ -9,7 +9,7 @@ RToolTask::RToolTask(const RToolInput &toolInput)
 
 int RToolTask::perform()
 {
-    foreach (const QSharedPointer<RToolAction> &action, this->toolInput.actions)
+    for (const QSharedPointer<RToolAction> &action : std::as_const(this->toolInput.actions))
     {
         try
         {
