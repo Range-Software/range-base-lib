@@ -111,3 +111,13 @@ void RJob::unlockEmitMutexes()
         pMutex->unlock();
     }
 }
+
+void RJob::cancel()
+{
+    emit this->canceled();
+}
+
+void RJob::setProgress(qint64 step, qint64 nSteps)
+{
+    emit this->progressChanged(step,nSteps);
+}

@@ -75,10 +75,21 @@ class RJob : public QObject, public QRunnable
         //! Unlock emit mutextes.
         void unlockEmitMutexes();
 
+    public slots:
+
+        //! Cancel job.
+        void cancel();
+
+        //! Set progress value based on curent step and number of steps.
+        void setProgress(qint64 step, qint64 nSteps);
+
     signals:
 
         //! Emitted when job blocking state changed.
         void isBlocking(bool blocking);
+
+        //! Emitted when job is canceled.
+        void canceled();
 
         //! Emitted when job is started.
         void started();
@@ -88,6 +99,9 @@ class RJob : public QObject, public QRunnable
 
         //! Emitted when job has failed.
         void failed();
+
+        //! Progress changed.
+        void progressChanged(qint64 step, qint64 nSteps);
 
 
 
