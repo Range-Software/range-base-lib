@@ -1,6 +1,7 @@
 #ifndef RBL_LOGGER_H
 #define RBL_LOGGER_H
 
+#include <QStack>
 #include <QString>
 #include <QList>
 #include <QElapsedTimer>
@@ -67,8 +68,8 @@ class RLogger
         //! Print to log file.
         void printToFile(time_t pTime, const QString &cppString) const;
 
-        //! Insert label string to message.
-        static void insertLabel(const QString &label, QString &message);
+        //! Insert prefix string to message.
+        static void insertPrefix(const QString &prefix, QString &message);
 
     protected:
 
@@ -96,6 +97,8 @@ class RLogger
         uint indentLevel;
         //! Time measurement stack.
         QList<QElapsedTimer> timerStack;
+        //! Stack of logger prefixes.
+        QStack<QString> prefixStack;
 
     public:
 
@@ -216,6 +219,12 @@ class RLogger
 
         //! Convenience function to decrease indent.
         static void unindent(bool printTime = true);
+
+        //! Convenience function to push prefix.
+        static void pushPrefix(const QString &prefix);
+
+        //! Convenience function to pop current prefix.
+        static void popPrefix();
 
 };
 

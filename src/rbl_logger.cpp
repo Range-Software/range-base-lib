@@ -269,17 +269,17 @@ void RLogger::printToFile(time_t pTime, const QString &cppString) const
 } /* RLogger::printToFile */
 
 
-void RLogger::insertLabel(const QString &label, QString &message)
+void RLogger::insertPrefix(const QString &prefix, QString &message)
 {
     for (int i=0;i<message.length();i++)
     {
         if (!message.at(i).isSpace())
         {
-            message.insert(i,label+": ");
+            message.insert(i,prefix+" ");
             break;
         }
     }
-} /* RLogger::insertLabel */
+} /* RLogger::insertPrefix */
 
 
 void RLogger::print(const RMessage &message)
@@ -305,26 +305,31 @@ void RLogger::print(const RMessage &message)
         fullMessage += '\n';
     }
 
+    for (const QString &prefix : this->prefixStack)
+    {
+        RLogger::insertPrefix(prefix,fullMessage);
+    }
+
     switch (messageType)
     {
         case RMessage::Type::Error:
-            RLogger::insertLabel("ERROR",fullMessage);
+            RLogger::insertPrefix("ERROR:",fullMessage);
             printToStderr = true;
             break;
         case RMessage::Type::Warning:
-            RLogger::insertLabel("WARNING",fullMessage);
+            RLogger::insertPrefix("WARNING:",fullMessage);
             printToStderr = true;
             break;
         case RMessage::Type::Debug:
-            RLogger::insertLabel("DEBUG",fullMessage);
+            RLogger::insertPrefix("DEBUG:",fullMessage);
             printToStderr = false;
             break;
         case RMessage::Type::Trace:
-            RLogger::insertLabel("TRACE",fullMessage);
+            RLogger::insertPrefix("TRACE:",fullMessage);
             printToStderr = false;
             break;
         case RMessage::Type::Notice:
-            RLogger::insertLabel("NOTICE",fullMessage);
+            RLogger::insertPrefix("NOTICE:",fullMessage);
             printToStderr = false;
             break;
         case RMessage::Type::Info:
@@ -573,3 +578,13 @@ void RLogger::unindent(bool printTime)
         RLogger::getInstance().timerStack.pop_front();
     }
 } /* RLogger::unindent */
+
+void RLogger::pushPrefix(const QString &prefix)
+{
+    RLogger::getInstance().prefixStack.push(prefix);
+}
+
+void RLogger::popPrefix()
+{
+    RLogger::getInstance().prefixStack.pop();
+}
