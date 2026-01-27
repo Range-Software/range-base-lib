@@ -38,6 +38,7 @@ class RError
             NotFound,
             Connection,
             Unauthorized,
+            Timeout,
             Unknown,
             nTypes
         };

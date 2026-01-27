@@ -23,6 +23,7 @@ const QString errorTypeMessages [RError::nTypes] =
     "Not found.",
     "Connection error.",
     "Unauthorized.",
+    "Timeout.",
     "Unknown error."
 };
 
