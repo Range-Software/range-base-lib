@@ -1,7 +1,6 @@
+#include <QDateTime>
 #include <QStringList>
 #include <QRegularExpression>
-
-#include <time.h>
 
 #include "rbl_message.h"
 #include "rbl_error.h"
@@ -11,45 +10,39 @@ RMessage::RMessage(RMessage::Type type)
     this->_init();
     this->setAtimeFrozen(false);
     this->setType(type);
-} /* RMessage::RMessage */
-
+}
 
 RMessage::RMessage(const RMessage &message) : QString(message)
 {
     this->_init(&message);
     this->setAtimeFrozen(false);
     this->setType(type);
-} /* RMessage::RMessage(copy) */
-
+}
 
 RMessage::RMessage(const QString &cppString, RMessage::Type type) : QString(cppString)
 {
     this->_init();
     this->setAtimeFrozen(false);
     this->setType(type);
-} /* RMessage::RMessage(copy c++ string) */
-
+}
 
 RMessage::RMessage(const char *cString, RMessage::Type type) : QString(cString)
 {
     this->_init();
     this->setAtimeFrozen(false);
     this->setType(type);
-} /* RMessage::RMessage(copy c string) */
-
+}
 
 RMessage::RMessage(size_t n, char cChar, RMessage::Type type) : QString(int(n),cChar)
 {
     this->_init();
     this->setAtimeFrozen(false);
     this->setType(type);
-} /* RMessage::RMessage(copy c char) */
-
+}
 
 RMessage::~RMessage()
 {
-} /* RMessage::~RMessage */
-
+}
 
 void RMessage::_init(const RMessage *pMessage)
 {
@@ -63,57 +56,55 @@ void RMessage::_init(const RMessage *pMessage)
         this->setAtimeFrozen(pMessage->getAtimeFrozen());
         this->setType(pMessage->getType());
     }
-} /* RMessage::_init */
-
+}
 
 RMessage::Type RMessage::getType() const
 {
     return this->type;
-} /* RMessage::get_type */
-
+}
 
 void RMessage::setType(RMessage::Type type)
 {
     R_ERROR_ASSERT(R_MESSAGE_TYPE_IS_VALID(type));
 
     this->type = type;
-} /* RMessage::set_type */
+}
 
-
-time_t RMessage::getAtime() const
+qint64 RMessage::getAtime() const
 {
     return this->aTime;
-} /* RMessage::get_atime */
+}
+
+QString RMessage::aTimeToString(qint64 aTime)
+{
+    return QDateTime::fromMSecsSinceEpoch(aTime).toString("yyyy.MM.dd hh:mm:ss.zzz");
+}
 
 void RMessage::setAtimeToNow()
 {
-    this->aTime = time(0);
-} /* RMessage::set_atime_to_now */
-
+    this->aTime = QDateTime::currentMSecsSinceEpoch();
+}
 
 RMessage & RMessage::operator =(const RMessage &message)
 {
     this->QString::operator =(message);
     this->_init(&message);
     return (*this);
-} /* RMessage::operator =(message) */
-
+}
 
 RMessage & RMessage::operator =(const QString &cppString)
 {
     this->QString::operator =(cppString);
     this->_init();
     return (*this);
-} /* RMessage::operator =(cpp string) */
-
+}
 
 RMessage & RMessage::operator =(const char *cString)
 {
     this->QString::operator =(cString);
     this->_init();
     return (*this);
-} /* RMessage::operator =(c string) */
-
+}
 
 RMessage & RMessage::operator =(char cChar)
 {
@@ -142,5 +133,4 @@ std::vector<QString> RMessage::explode(const QString &str, char ch, bool keepCh)
     }
 
     return result;
-} /* RMessage::operator =(c char) */
-
+}

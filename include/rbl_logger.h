@@ -66,7 +66,7 @@ class RLogger
         void _init(const RLogger *pLogger = nullptr);
 
         //! Print to log file.
-        void printToFile(time_t pTime, const QString &cppString) const;
+        void printToFile(qint64 pTime, const QString &cppString) const;
 
         //! Insert prefix string to message.
         static void insertPrefix(const QString &prefix, QString &message);

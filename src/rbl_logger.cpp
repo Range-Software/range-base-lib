@@ -227,10 +227,9 @@ void RLogger::decreaseIndent()
         this->indentLevel--;
     }
     RLocker::unlock();
-} /* RLogger::decreaseIndent */
+}
 
-
-void RLogger::printToFile(time_t pTime, const QString &cppString) const
+void RLogger::printToFile(qint64 pTime, const QString &cppString) const
 {
     if (this->logFileName.isEmpty())
     {
@@ -249,15 +248,7 @@ void RLogger::printToFile(time_t pTime, const QString &cppString) const
 
     if (this->printTime)
     {
-        char buffer [80];
-        struct tm timeinfo;
-#if defined(_POSIX_SOURCE) || defined(__APPLE__) || defined(__linux__) || defined(__unix__)
-        localtime_r(&pTime, &timeinfo);
-#else
-        localtime_s(&timeinfo, &pTime);
-#endif
-        strftime(buffer,80,"%Y/%m/%d - %H:%M:%S > ",&timeinfo);
-        out << buffer;
+        out << RMessage::aTimeToString(pTime);
     }
     out << cppString;
     if (out.status() != QTextStream::Ok)
@@ -266,8 +257,7 @@ void RLogger::printToFile(time_t pTime, const QString &cppString) const
     }
 
     logFile.close();
-} /* RLogger::printToFile */
-
+}
 
 void RLogger::insertPrefix(const QString &prefix, QString &message)
 {
@@ -279,8 +269,7 @@ void RLogger::insertPrefix(const QString &prefix, QString &message)
             break;
         }
     }
-} /* RLogger::insertPrefix */
-
+}
 
 void RLogger::print(const RMessage &message)
 {
@@ -304,8 +293,8 @@ void RLogger::print(const RMessage &message)
     {
         fullMessage += '\n';
     }
-
-    for (const QString &prefix : this->prefixStack)
+    
+    for (const QString &prefix : std::as_const(this->prefixStack))
     {
         RLogger::insertPrefix(prefix,fullMessage);
     }
@@ -373,8 +362,7 @@ void RLogger::print(const RMessage &message)
         }
         RLocker::unlock();
     }
-} /* RLogger::print */
-
+}
 
 void RLogger::print(const QString &cppString, RMessage::Type messageType)
 {
@@ -385,22 +373,19 @@ void RLogger::print(const QString &cppString, RMessage::Type messageType)
         message.setType(messageType);
         this->print(message);
     }
-} /* RLogger::print */
-
+}
 
 void RLogger::print(const char *cString, RMessage::Type  messageType)
 {
     this->print(QString(cString),messageType);
-} /* RLogger::print */
-
+}
 
 void RLogger::print(const char cChar, RMessage::Type messageType)
 {
     RMessage message(1,cChar);
     message.setType(messageType);
     this->print(message);
-} /* RLogger::print */
-
+}
 
 void RLogger::flush()
 {
@@ -419,8 +404,7 @@ void RLogger::flush()
     }
     RLocker::unlock();
     this->purge();
-} /* RLogger::flush */
-
+}
 
 void RLogger::purge(uint nMessages)
 {
@@ -445,8 +429,7 @@ void RLogger::purge(uint nMessages)
 
     this->messages.erase(this->messages.begin(),iter);
     RLocker::unlock();
-} /* RLogger::purge */
-
+}
 
 int RLogger::trace(const char *format, ...)
 {
@@ -460,8 +443,7 @@ int RLogger::trace(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::trace */
-
+}
 
 int RLogger::debug(const char *format, ...)
 {
@@ -475,8 +457,7 @@ int RLogger::debug(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::debug */
-
+}
 
 int RLogger::info(const char *format, ...)
 {
@@ -490,8 +471,7 @@ int RLogger::info(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::info */
-
+}
 
 int RLogger::notice(const char *format, ...)
 {
@@ -505,8 +485,7 @@ int RLogger::notice(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::notice */
-
+}
 
 int RLogger::warning(const char *format, ...)
 {
@@ -520,8 +499,7 @@ int RLogger::warning(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::warning */
-
+}
 
 int RLogger::error(const char *format, ...)
 {
@@ -535,18 +513,15 @@ int RLogger::error(const char *format, ...)
     RLogger::getInstance().print(QString::vasprintf(format, ap), messageType);
     va_end(ap);
     return 0;
-} /* RLogger::error */
-
+}
 
 void RLogger::timestamp(const QString prefix)
 {
-    QDateTime timeStamp = QDateTime::currentDateTime();
     RLogger::info("%s%s%s\n",
                   prefix.toUtf8().constData(),
                   prefix.size()>0?" ":"",
-                  timeStamp.toString("dd/MM/yyyy hh:mm:ss").toUtf8().constData());
-} /* RLogger::timestamp */
-
+                  RMessage::aTimeToString(QDateTime::currentMSecsSinceEpoch()).toUtf8().constData());
+}
 
 void RLogger::indent()
 {
@@ -554,20 +529,19 @@ void RLogger::indent()
     RLogger::getInstance().timerStack.first().start();
     RLogger::info("{\n");
     RLogger::getInstance().increaseIndent();
-} /* RLogger::indent */
-
+}
 
 void RLogger::unindent(bool printTime)
 {
     RLogger::getInstance().decreaseIndent();
     if (printTime)
     {
-        int elapsed = 0;
+        qint64 elapsed = 0;
         if (!RLogger::getInstance().timerStack.isEmpty())
         {
-            elapsed = qRound(double(RLogger::getInstance().timerStack.first().elapsed())/1000.0);
+            elapsed = RLogger::getInstance().timerStack.first().elapsed();
         }
-        RLogger::info("} %s\n", QDateTime::fromSecsSinceEpoch(elapsed).toUTC().toString("hh:mm:ss").toUtf8().constData());
+        RLogger::info("} %s\n", QDateTime::fromMSecsSinceEpoch(elapsed).toUTC().toString("hh:mm:ss:zzz").toUtf8().constData());
     }
     else
     {
@@ -577,7 +551,7 @@ void RLogger::unindent(bool printTime)
     {
         RLogger::getInstance().timerStack.pop_front();
     }
-} /* RLogger::unindent */
+}
 
 void RLogger::pushPrefix(const QString &prefix)
 {

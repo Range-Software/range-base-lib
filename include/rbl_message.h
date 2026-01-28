@@ -4,7 +4,6 @@
 #include <QString>
 
 #include <vector>
-#include <time.h>
 
 #define R_MESSAGE_TYPE_IS_VALID(_type) \
 ( \
@@ -43,10 +42,10 @@ class RMessage : public QString
         //! Message type.
         Type type;
         //! Message assignment time.
-        //! Value of this time variable is iset by constructors and
+        //! Value of this time variable is set by constructors and
         //! changed whenever new value is set using assignment
         //! operator.
-        time_t aTime;
+        qint64 aTime;
         //! Indicates whether the assignment time is frozen or not.
         bool aTimeFrozen;
 
@@ -77,7 +76,10 @@ class RMessage : public QString
         void setType(RMessage::Type type);
 
         //! Return message assignment time.
-        time_t getAtime() const;
+        qint64 getAtime() const;
+
+        //! Return message assignment time.
+        static QString aTimeToString(qint64 aTime);
 
         //! Set message assignment time to current time.
         void setAtimeToNow();
