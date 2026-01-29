@@ -1,4 +1,5 @@
 #include <QFile>
+#include <QMessageLogContext>
 #include <QTextStream>
 #include <QDateTime>
 #include <QThread>
@@ -587,4 +588,41 @@ void RLogger::pushPrefix(const QString &prefix)
 void RLogger::popPrefix()
 {
     RLogger::getInstance().prefixStack.pop();
-}
+} /* RLogger::popPrefix */
+
+
+static void rloggerQtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString formatted;
+    if (context.category && qstrcmp(context.category, "default") != 0)
+    {
+        formatted = QString("[Qt:%1] %2").arg(context.category, msg);
+    }
+    else
+    {
+        formatted = QString("[Qt] %1").arg(msg);
+    }
+
+    switch (type)
+    {
+        case QtDebugMsg:
+            RLogger::debug("%s\n", formatted.toUtf8().constData());
+            break;
+        case QtInfoMsg:
+            RLogger::info("%s\n", formatted.toUtf8().constData());
+            break;
+        case QtWarningMsg:
+            RLogger::warning("%s\n", formatted.toUtf8().constData());
+            break;
+        case QtCriticalMsg:
+        case QtFatalMsg:
+            RLogger::error("%s\n", formatted.toUtf8().constData());
+            break;
+    }
+} /* rloggerQtMessageHandler */
+
+
+void RLogger::installQtMessageHandler()
+{
+    qInstallMessageHandler(rloggerQtMessageHandler);
+} /* RLogger::installQtMessageHandler */

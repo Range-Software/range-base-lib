@@ -226,6 +226,9 @@ class RLogger
         //! Convenience function to pop current prefix.
         static void popPrefix();
 
+        //! Install Qt message handler to route Qt logs through RLogger.
+        static void installQtMessageHandler();
+
 };
 
 #endif /* RBL_LOGGER_H */
