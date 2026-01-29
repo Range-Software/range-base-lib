@@ -10,7 +10,6 @@
 #include "rbl_locker.h"
 #include "rbl_error.h"
 
-
 void RLogger::_init(const RLogger *pLogger)
 {
     if (pLogger)
@@ -25,8 +24,7 @@ void RLogger::_init(const RLogger *pLogger)
         this->indentLevel = pLogger->indentLevel;
         // Copy unprocessed messages.
     }
-} /* RLogger::_init */
-
+}
 
 RLogger::RLogger(RLogLevelMask logLevel)
     : logLevel(logLevel)
@@ -38,33 +36,28 @@ RLogger::RLogger(RLogLevelMask logLevel)
     , indentLevel(0)
 {
     this->_init();
-} /* RLogger::RLogger */
-
+}
 
 RLogger::RLogger(const RLogger &logger)
 {
     this->_init(&logger);
-} /* RLogger::RLogger (copy) */
-
+}
 
 RLogger::~RLogger()
 {
-} /* RLogger::~RLogger */
-
+}
 
 RLogger & RLogger::operator =(const RLogger &logger)
 {
     this->_init(&logger);
     return (*this);
-} /* RLogger::operator = */
-
+}
 
 RLogger & RLogger::getInstance()
 {
     static RLogger logger;
     return logger;
-} /* RLogger::getInstance */
-
+}
 
 RLogLevelMask RLogger::getLevel() const
 {
@@ -73,8 +66,7 @@ RLogLevelMask RLogger::getLevel() const
     tmpLevel = this->logLevel;
     RLocker::unlock();
     return tmpLevel;
-} /* RLogger::getLevel */
-
+}
 
 void RLogger::setLevel(RLogLevelMask level)
 {
@@ -83,8 +75,7 @@ void RLogger::setLevel(RLogLevelMask level)
     RLocker::lock();
     this->logLevel = level;
     RLocker::unlock();
-} /* RLogger::setLevel */
-
+}
 
 bool RLogger::getHalted() const
 {
@@ -93,8 +84,7 @@ bool RLogger::getHalted() const
     tmpHalted = this->halted;
     RLocker::unlock();
     return tmpHalted;
-} /* RLogger::getHalted */
-
+}
 
 void RLogger::setHalted(bool halt)
 {
@@ -105,8 +95,7 @@ void RLogger::setHalted(bool halt)
     {
         this->flush();
     }
-} /* RLogger::setHalted */
-
+}
 
 bool RLogger::getPrintTimeEnabled() const
 {
@@ -115,30 +104,26 @@ bool RLogger::getPrintTimeEnabled() const
     tmpTime = this->printTime;
     RLocker::unlock();
     return tmpTime;
-} /* RLogger::getPrintTimeEnabled */
-
+}
 
 void RLogger::setPrintTimeEnabled(bool printTime)
 {
     RLocker::lock();
     this->printTime = printTime;
     RLocker::unlock();
-} /* RLogger::setPrintTimeEnabled */
-
+}
 
 bool RLogger::getPrintThreadIdEnabled() const
 {
     return this->printThreadId;
-} /* RLogger::getPrintThreadIdEnabled */
-
+}
 
 void RLogger::setPrintThreadIdEnabled(bool printThreadId)
 {
     RLocker::lock();
     this->printThreadId = printThreadId;
     RLocker::unlock();
-} /* RLogger::setPrintThreadIdEnabled */
-
+}
 
 bool RLogger::getAddNewLine() const
 {
@@ -147,16 +132,14 @@ bool RLogger::getAddNewLine() const
     tmpNewLine = this->addNewLine;
     RLocker::unlock();
     return tmpNewLine;
-} /* RLogger::getAddNewLine */
-
+}
 
 void RLogger::setAddNewLine(bool addNewLine)
 {
     RLocker::lock();
     this->addNewLine = addNewLine;
     RLocker::unlock();
-} /* RLogger::setAddNewLine */
-
+}
 
 const QString RLogger::getFile() const
 {
@@ -165,16 +148,14 @@ const QString RLogger::getFile() const
     tmpFileName = this->logFileName;
     RLocker::unlock();
     return tmpFileName;
-} /* RLogger::getFile */
-
+}
 
 void RLogger::setFile(const QString & logFileName)
 {
     RLocker::lock();
     this->logFileName = logFileName;
     RLocker::unlock();
-} /* RLogger::setFile */
-
+}
 
 RLogHandler RLogger::getLogHandler() const
 {
@@ -183,16 +164,14 @@ RLogHandler RLogger::getLogHandler() const
     tmpHandler = this->logHandler;
     RLocker::unlock();
     return tmpHandler;
-} /* RLogger::getLogHandler */
-
+}
 
 void RLogger::setLogHandler(RLogHandler logHandler)
 {
     RLocker::lock();
     this->logHandler = logHandler;
     RLocker::unlock();
-} /* RLogger::setLogHandler */
-
+}
 
 uint RLogger::getIndentLevel() const
 {
@@ -201,24 +180,21 @@ uint RLogger::getIndentLevel() const
     tmpLevel = this->indentLevel;
     RLocker::unlock();
     return tmpLevel;
-} /* RLogger::getIndentLevel */
-
+}
 
 void RLogger::setIndentLevel(uint indentLevel)
 {
     RLocker::lock();
     this->indentLevel = indentLevel;
     RLocker::unlock();
-} /* RLogger::setIndentLevel */
-
+}
 
 void RLogger::increaseIndent()
 {
     RLocker::lock();
     this->indentLevel++;
     RLocker::unlock();
-} /* RLogger::increaseIndent */
-
+}
 
 void RLogger::decreaseIndent()
 {
@@ -249,7 +225,7 @@ void RLogger::printToFile(qint64 pTime, const QString &cppString) const
 
     if (this->printTime)
     {
-        out << RMessage::aTimeToString(pTime);
+        out << "[" << RMessage::aTimeToString(pTime) << "] ";
     }
     out << cppString;
     if (out.status() != QTextStream::Ok)
@@ -562,7 +538,7 @@ void RLogger::pushPrefix(const QString &prefix)
 void RLogger::popPrefix()
 {
     RLogger::getInstance().prefixStack.pop();
-} /* RLogger::popPrefix */
+}
 
 
 static void rloggerQtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -599,4 +575,4 @@ static void rloggerQtMessageHandler(QtMsgType type, const QMessageLogContext &co
 void RLogger::installQtMessageHandler()
 {
     qInstallMessageHandler(rloggerQtMessageHandler);
-} /* RLogger::installQtMessageHandler */
+}
