@@ -80,6 +80,11 @@ QString RMessage::aTimeToString(qint64 aTime)
     return QDateTime::fromMSecsSinceEpoch(aTime).toString("yyyy.MM.dd hh:mm:ss.zzz");
 }
 
+QString RMessage::messageToLogString(const RMessage &message)
+{
+    return QString("[%1] %2").arg(RMessage::aTimeToString(message.getAtime()),message);
+}
+
 void RMessage::setAtimeToNow()
 {
     this->aTime = QDateTime::currentMSecsSinceEpoch();

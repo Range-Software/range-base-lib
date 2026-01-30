@@ -81,6 +81,9 @@ class RMessage : public QString
         //! Return message assignment time.
         static QString aTimeToString(qint64 aTime);
 
+        //! Convert message to log string.
+        static QString messageToLogString(const RMessage &message);
+
         //! Set message assignment time to current time.
         void setAtimeToNow();
 
