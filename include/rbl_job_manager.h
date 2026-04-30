@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQueue>
 #include <QList>
+#include <QRecursiveMutex>
 
 #include "rbl_job.h"
 
@@ -21,6 +22,8 @@ class RJobManager : public QObject
         QList<RJob*> runningJobs;
         //! Job is starting - indicator.
         bool jobIsStarting;
+        //! Mutex protecting waitingJobs, waitingParallelJobs, and runningJobs.
+        mutable QRecursiveMutex jobsMutex;
 
     public:
 

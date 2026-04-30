@@ -14,7 +14,7 @@ void RStopWatch::_init(const RStopWatch *pStopWatch)
 
 RStopWatch::RStopWatch()
 {
-    this->_init();
+    this->reset();
 }
 
 RStopWatch::RStopWatch(const RStopWatch &stopWatch)

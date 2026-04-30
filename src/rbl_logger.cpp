@@ -1,4 +1,5 @@
 #include <QFile>
+#include <QFileInfo>
 #include <QMessageLogContext>
 #include <QTextStream>
 #include <QDateTime>
@@ -12,6 +13,7 @@
 
 void RLogger::_init(const RLogger *pLogger)
 {
+    this->closeLogFile();
     if (pLogger)
     {
         this->logFileName = pLogger->logFileName;
@@ -22,7 +24,35 @@ void RLogger::_init(const RLogger *pLogger)
         this->addNewLine = pLogger->addNewLine;
         this->logHandler = pLogger->logHandler;
         this->indentLevel = pLogger->indentLevel;
-        // Copy unprocessed messages.
+        // messages, timerStack, and prefixStack are intentionally not copied — cloning active state would be misleading.
+    }
+}
+
+void RLogger::openLogFile() const
+{
+    this->closeLogFile();
+    if (this->logFileName.isEmpty())
+        return;
+    this->logFile = new QFile(this->logFileName);
+    if (!this->logFile->open(QIODevice::Append | QIODevice::Text))
+    {
+        QTextStream(stderr) << "Failed to open log file '" << this->logFileName << "'\n";
+        delete this->logFile;
+        this->logFile = nullptr;
+        return;
+    }
+    this->logStream = new QTextStream(this->logFile);
+}
+
+void RLogger::closeLogFile() const
+{
+    delete this->logStream;
+    this->logStream = nullptr;
+    if (this->logFile)
+    {
+        this->logFile->close();
+        delete this->logFile;
+        this->logFile = nullptr;
     }
 }
 
@@ -32,7 +62,7 @@ RLogger::RLogger(RLogLevelMask logLevel)
     , printTime(true)
     , printThreadId(false)
     , addNewLine(false)
-    , logHandler(0)
+    , logHandler(nullptr)
     , indentLevel(0)
 {
     this->_init();
@@ -45,6 +75,7 @@ RLogger::RLogger(const RLogger &logger)
 
 RLogger::~RLogger()
 {
+    this->closeLogFile();
 }
 
 RLogger & RLogger::operator =(const RLogger &logger)
@@ -91,7 +122,7 @@ void RLogger::setHalted(bool halt)
     RLocker::lock();
     this->halted = halt;
     RLocker::unlock();
-    if (!this->getHalted())
+    if (!halt)
     {
         this->flush();
     }
@@ -115,7 +146,11 @@ void RLogger::setPrintTimeEnabled(bool printTime)
 
 bool RLogger::getPrintThreadIdEnabled() const
 {
-    return this->printThreadId;
+    bool tmpThreadId;
+    RLocker::lock();
+    tmpThreadId = this->printThreadId;
+    RLocker::unlock();
+    return tmpThreadId;
 }
 
 void RLogger::setPrintThreadIdEnabled(bool printThreadId)
@@ -141,7 +176,7 @@ void RLogger::setAddNewLine(bool addNewLine)
     RLocker::unlock();
 }
 
-const QString RLogger::getFile() const
+QString RLogger::getFile() const
 {
     QString tmpFileName;
     RLocker::lock();
@@ -150,9 +185,10 @@ const QString RLogger::getFile() const
     return tmpFileName;
 }
 
-void RLogger::setFile(const QString & logFileName)
+void RLogger::setFile(const QString &logFileName)
 {
     RLocker::lock();
+    this->closeLogFile();
     this->logFileName = logFileName;
     RLocker::unlock();
 }
@@ -209,31 +245,19 @@ void RLogger::decreaseIndent()
 void RLogger::printToFile(qint64 pTime, const QString &cppString) const
 {
     if (this->logFileName.isEmpty())
-    {
         return;
-    }
-
-    QFile logFile(this->logFileName);
-
-    if (!logFile.open(QIODevice::Append | QIODevice::Text))
-    {
-        QTextStream(stderr) << "Failed to open the log file '" << this->logFileName << "'\n";
+    if (this->logStream && !QFileInfo::exists(this->logFileName))
+        this->closeLogFile();
+    if (!this->logStream)
+        this->openLogFile();
+    if (!this->logStream)
         return;
-    }
-
-    QTextStream out(&logFile);
-
     if (this->printTime)
-    {
-        out << "[" << RMessage::aTimeToString(pTime) << "] ";
-    }
-    out << cppString;
-    if (out.status() != QTextStream::Ok)
-    {
-        QTextStream(stderr) << "Failed to write the log message to file '" << this->logFileName << "'\n";
-    }
-
-    logFile.close();
+        *this->logStream << "[" << RMessage::aTimeToString(pTime) << "] ";
+    *this->logStream << cppString;
+    this->logStream->flush();
+    if (this->logStream->status() != QTextStream::Ok)
+        QTextStream(stderr) << "Failed to write log message to '" << this->logFileName << "'\n";
 }
 
 void RLogger::insertPrefix(const QString &prefix, QString &message)
@@ -310,16 +334,10 @@ void RLogger::print(const RMessage &message)
         fullMessage = QString("0x%1").arg((quintptr)ptr, QT_POINTER_SIZE * 2, 16, QChar('0')) + " " + fullMessage;
     }
 
-    if (printToStderr)
     {
-        QTextStream(stderr) << fullMessage;
-        QTextStream(stderr).flush();
-    }
-    else
-    {
-        QTextStream(stdout) << fullMessage;
-        QTextStream(stdout).flush();
-
+        QTextStream ts(printToStderr ? stderr : stdout);
+        ts << fullMessage;
+        ts.flush();
     }
 
     if (this->getHalted())
@@ -343,10 +361,10 @@ void RLogger::print(const RMessage &message)
 
 void RLogger::print(const QString &cppString, RMessage::Type messageType)
 {
-    std::vector<QString> messages = RMessage::explode(cppString,'\n',true);
-    for (uint i=0;i<messages.size();i++)
+    std::vector<QString> lines = RMessage::explode(cppString,'\n',true);
+    for (const QString &line : lines)
     {
-        RMessage message(messages[i]);
+        RMessage message(line);
         message.setType(messageType);
         this->print(message);
     }
@@ -492,7 +510,7 @@ int RLogger::error(const char *format, ...)
     return 0;
 }
 
-void RLogger::timestamp(const QString prefix)
+void RLogger::timestamp(const QString &prefix)
 {
     RLogger::info("%s%s%s\n",
                   prefix.toUtf8().constData(),
@@ -502,8 +520,8 @@ void RLogger::timestamp(const QString prefix)
 
 void RLogger::indent()
 {
-    RLogger::getInstance().timerStack.push_front(QElapsedTimer());
-    RLogger::getInstance().timerStack.first().start();
+    RLogger::getInstance().timerStack.push(QElapsedTimer());
+    RLogger::getInstance().timerStack.top().start();
     RLogger::info("{\n");
     RLogger::getInstance().increaseIndent();
 }
@@ -516,7 +534,7 @@ void RLogger::unindent(bool printTime)
         qint64 elapsed = 0;
         if (!RLogger::getInstance().timerStack.isEmpty())
         {
-            elapsed = RLogger::getInstance().timerStack.first().elapsed();
+            elapsed = RLogger::getInstance().timerStack.top().elapsed();
         }
         RLogger::info("} %s\n", QDateTime::fromMSecsSinceEpoch(elapsed).toUTC().toString("hh:mm:ss:zzz").toUtf8().constData());
     }
@@ -526,7 +544,7 @@ void RLogger::unindent(bool printTime)
     }
     if (!RLogger::getInstance().timerStack.isEmpty())
     {
-        RLogger::getInstance().timerStack.pop_front();
+        RLogger::getInstance().timerStack.pop();
     }
 }
 

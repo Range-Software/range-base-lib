@@ -130,6 +130,14 @@ double RValueTable::get (double key) const
     std::map<double,double>::const_iterator iter;
 
     iter = this->table.lower_bound (key);
+
+    if (iter == this->table.end())
+    {
+        // key exceeds all entries — clamp to last
+        --iter;
+        return iter->second;
+    }
+
     k2 = iter->first;
     v2 = iter->second;
 
@@ -140,19 +148,9 @@ double RValueTable::get (double key) const
     }
     else
     {
-        bool isLast = false;
-        if (iter == this->table.end())
-        {
-           isLast = true; 
-        }
         std::advance (iter, -1);
         k1 = iter->first;
         v1 = iter->second;
-        if (isLast)
-        {
-            k2 = k1;
-            v2 = v1;
-        }
     }
 
     dKey = k2 - k1;
@@ -219,11 +217,17 @@ bool RValueTable::operator ==(const RValueTable &valueTable) const
     }
     for (uint i=0;i<this->table.size();i++)
     {
-        if (std::abs((this->getKey(i) - valueTable.getKey(i)) / this->getKey(i)) > RConstants::eps)
+        double k = this->getKey(i);
+        double diff = k - valueTable.getKey(i);
+        if (std::abs(k) > RConstants::eps ? std::abs(diff / k) > RConstants::eps
+                                          : std::abs(diff)     > RConstants::eps)
         {
             return false;
         }
-        if (std::abs((this->getValue(i) - valueTable.getValue(i)) / this->getValue(i)) > RConstants::eps)
+        double v = this->getValue(i);
+        diff = v - valueTable.getValue(i);
+        if (std::abs(v) > RConstants::eps ? std::abs(diff / v) > RConstants::eps
+                                          : std::abs(diff)     > RConstants::eps)
         {
             return false;
         }

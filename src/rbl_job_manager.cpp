@@ -20,6 +20,7 @@ RJobManager & RJobManager::getInstance()
 void RJobManager::submit(RJob *job)
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     R_LOG_TRACE_MESSAGE("Enqueue job");
     if (job->getParallel())
     {
@@ -37,12 +38,14 @@ void RJobManager::submit(RJob *job)
 uint RJobManager::getNWaiting() const
 {
     R_LOG_TRACE;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     return (uint)this->waitingJobs.size();
 }
 
 uint RJobManager::getNRunning(bool excludeParallel) const
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     QList<RJob*>::const_iterator iter;
     uint nRunning = 0;
 
@@ -65,6 +68,7 @@ uint RJobManager::getNRunning(bool excludeParallel) const
 QList<uint> RJobManager::getRunningIDs() const
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     QList<uint> runningIDs;
 
     QList<RJob*>::const_iterator iter;
@@ -85,6 +89,7 @@ QList<uint> RJobManager::getRunningIDs() const
 void RJobManager::onJobBlocking(bool blocking)
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     emit this->jobBlocking(blocking);
     R_LOG_TRACE_OUT;
 }
@@ -92,6 +97,7 @@ void RJobManager::onJobBlocking(bool blocking)
 void RJobManager::onJobStarted()
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     this->jobIsStarting = false;
     emit this->jobStarted();
     R_LOG_TRACE_OUT;
@@ -100,6 +106,7 @@ void RJobManager::onJobStarted()
 void RJobManager::onJobFinished()
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     emit this->jobFinished();
     this->processWaitingJobs();
     this->processFinishedJobs();
@@ -109,6 +116,7 @@ void RJobManager::onJobFinished()
 void RJobManager::onJobFailed()
 {
     R_LOG_TRACE_IN;
+    QMutexLocker<QRecursiveMutex> locker(&this->jobsMutex);
     emit this->jobFailed();
     this->processWaitingJobs();
     this->processFinishedJobs();
@@ -141,10 +149,10 @@ void RJobManager::startJob(RJob *job)
     R_LOG_TRACE_IN;
     this->jobIsStarting = true;
 
-    QObject::connect(job,&RJob::isBlocking,this,&RJobManager::onJobBlocking);
-    QObject::connect(job,&RJob::started,this,&RJobManager::onJobStarted);
-    QObject::connect(job,&RJob::finished,this,&RJobManager::onJobFinished);
-    QObject::connect(job,&RJob::failed,this,&RJobManager::onJobFailed);
+    QObject::connect(job,&RJob::isBlocking,this,&RJobManager::onJobBlocking,Qt::QueuedConnection);
+    QObject::connect(job,&RJob::started,this,&RJobManager::onJobStarted,Qt::QueuedConnection);
+    QObject::connect(job,&RJob::finished,this,&RJobManager::onJobFinished,Qt::QueuedConnection);
+    QObject::connect(job,&RJob::failed,this,&RJobManager::onJobFailed,Qt::QueuedConnection);
 
     job->setAutoDelete(false);
 

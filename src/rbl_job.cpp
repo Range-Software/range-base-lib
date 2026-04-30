@@ -2,26 +2,30 @@
 #include <omp.h>
 #endif
 
+#include <QReadWriteLock>
+
 #include "rbl_logger.h"
 #include "rbl_job.h"
 
-static uint lastID = 0;
+static std::atomic<uint> lastID{0};
+static QReadWriteLock defaultJobSettingsLock;
 
 RJobSettings RJob::defaultJobSettings = RJobSettings();
 
 void RJob::setDefaultJobSettings(const RJobSettings &jobSettings)
 {
+    QWriteLocker locker(&defaultJobSettingsLock);
     RJob::defaultJobSettings = jobSettings;
 }
 
-const RJobSettings &RJob::getDefaultJobSettings()
+RJobSettings RJob::getDefaultJobSettings()
 {
+    QReadLocker locker(&defaultJobSettingsLock);
     return RJob::defaultJobSettings;
 }
 
 RJob::RJob()
     : id(++lastID)
-    , jobFinished(false)
 {
     R_LOG_TRACE;
 }
@@ -29,24 +33,25 @@ RJob::RJob()
 void RJob::run()
 {
     R_LOG_TRACE_IN;
-    this->lockEmitMutexes();
+    const RJobSettings settings = this->jobSettings;
+    this->lockEmitMutexes(settings);
     emit this->started();
-    if (this->jobSettings.getBlocking())
+    if (settings.getBlocking())
     {
         emit this->isBlocking(true);
     }
-    this->unlockEmitMutexes();
+    this->unlockEmitMutexes(settings);
 #ifdef _OPENMP
-    omp_set_num_threads(this->jobSettings.getNOmpThreads());
+    omp_set_num_threads(settings.getNOmpThreads());
 #endif
     int retVal = this->perform();
-    this->lockEmitMutexes();
+    this->lockEmitMutexes(settings);
     this->jobFinished = true;
-    if (this->jobSettings.getBlocking())
+    if (settings.getBlocking())
     {
         emit this->isBlocking(false);
     }
-    this->unlockEmitMutexes();
+    this->unlockEmitMutexes(settings);
     if (retVal == 0)
     {
         emit this->finished();
@@ -96,17 +101,17 @@ void RJob::registerEmitMutex(QMutex *pEmitMutexList)
     this->jobSettings.registerEmitMutex(pEmitMutexList);
 }
 
-void RJob::lockEmitMutexes()
+void RJob::lockEmitMutexes(const RJobSettings &settings)
 {
-    for (QMutex *pMutex : this->jobSettings.getEmitMutexList())
+    for (QMutex *pMutex : settings.getEmitMutexList())
     {
         pMutex->lock();
     }
 }
 
-void RJob::unlockEmitMutexes()
+void RJob::unlockEmitMutexes(const RJobSettings &settings)
 {
-    for (QMutex *pMutex : this->jobSettings.getEmitMutexList())
+    for (QMutex *pMutex : settings.getEmitMutexList())
     {
         pMutex->unlock();
     }

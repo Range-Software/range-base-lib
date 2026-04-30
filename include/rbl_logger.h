@@ -1,10 +1,12 @@
 #ifndef RBL_LOGGER_H
 #define RBL_LOGGER_H
 
+#include <QFile>
 #include <QStack>
 #include <QString>
 #include <QList>
 #include <QElapsedTimer>
+#include <QTextStream>
 #include <QThread>
 
 #include <vector>
@@ -65,6 +67,12 @@ class RLogger
         //! Internal initialization function.
         void _init(const RLogger *pLogger = nullptr);
 
+        //! Open log file for appending. Closes any previously open file first.
+        void openLogFile() const;
+
+        //! Close log file if open.
+        void closeLogFile() const;
+
         //! Print to log file.
         void printToFile(qint64 pTime, const QString &cppString) const;
 
@@ -77,6 +85,10 @@ class RLogger
         std::vector<RMessage> messages;
         //! Log file name.
         QString logFileName;
+        //! Persistent log file handle.
+        mutable QFile *logFile = nullptr;
+        //! Text stream over logFile.
+        mutable QTextStream *logStream = nullptr;
         //! Log level.
         RLogLevelMask logLevel;
         //! Logger halted state.
@@ -96,7 +108,7 @@ class RLogger
         //! Current indent level.
         uint indentLevel;
         //! Time measurement stack.
-        QList<QElapsedTimer> timerStack;
+        QStack<QElapsedTimer> timerStack;
         //! Stack of logger prefixes.
         QStack<QString> prefixStack;
 
@@ -151,7 +163,7 @@ class RLogger
         void setAddNewLine(bool addNewLine);
 
         //! Return log file name.
-        const QString getFile() const;
+        QString getFile() const;
 
         //! Set log file name.
         void setFile(const QString & logFileName);
@@ -212,7 +224,7 @@ class RLogger
         static int error(const char *format, ...);
 
         //! Convenience function to print timestamp.
-        static void timestamp(const QString prefix = QString());
+        static void timestamp(const QString &prefix = QString());
 
         //! Convenience function to increase indent.
         static void indent();

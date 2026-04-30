@@ -80,15 +80,20 @@ void RBook::enable(uint position, bool consolidate)
     }
     else
     {
+        bool found = false;
         for (uint i=position;i>0;i--)
         {
             if (this->book[i-1] != RConstants::eod)
             {
                 this->book[position] = this->book[i-1] + 1;
+                found = true;
                 break;
             }
         }
-        this->book[position] = 0;
+        if (!found)
+        {
+            this->book[position] = 0;
+        }
     }
 
     if (consolidate)

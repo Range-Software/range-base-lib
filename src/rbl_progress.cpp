@@ -6,11 +6,13 @@
 
 
 RProgress::RProgress()
-    : lastFraction(0.0)
+    : pulseType(false)
+    , lastFraction(0.0)
     , printToLog(false)
-    , progressHandler(0)
+    , progressHandler(nullptr)
+    , progressInitializeHandler(nullptr)
+    , progressFinalizeHandler(nullptr)
 {
-    this->_init();
 } /* RProgress:: */
 
 
@@ -36,6 +38,8 @@ void RProgress::_init(const RProgress *pProgress)
 {
     if (pProgress)
     {
+        this->pulseType    = pProgress->pulseType;
+        this->lastFraction = pProgress->lastFraction;
         this->setPrintToLog(pProgress->getPrintToLog());
         this->setProgressPrintHandler(pProgress->getProgressPrintHandler());
         this->setProgressInitializeHandler(pProgress->getProgressInitializeHandler());

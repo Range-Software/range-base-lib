@@ -7,6 +7,7 @@ void RJobSettings::_init(const RJobSettings *pJobSettings)
         this->blocking = pJobSettings->blocking;
         this->parallel = pJobSettings->parallel;
         this->nOmpThreads = pJobSettings->nOmpThreads;
+        this->emitMutexList = pJobSettings->emitMutexList;
     }
 }
 

@@ -6,6 +6,8 @@
 #include <QMutex>
 #include <QList>
 
+#include <atomic>
+
 #include "rbl_job_settings.h"
 
 class RJob : public QObject, public QRunnable
@@ -21,7 +23,7 @@ class RJob : public QObject, public QRunnable
         //! Job ID.
         uint id;
         //! Indicates whether the job is finished or not.
-        bool jobFinished;
+        std::atomic<bool> jobFinished{false};
         //! Job settings.
         RJobSettings jobSettings;
 
@@ -31,7 +33,7 @@ class RJob : public QObject, public QRunnable
         static void setDefaultJobSettings(const RJobSettings &jobSettings);
 
         //! Return default job settings.
-        static const RJobSettings &getDefaultJobSettings();
+        static RJobSettings getDefaultJobSettings();
 
     public:
 
@@ -70,10 +72,10 @@ class RJob : public QObject, public QRunnable
     private:
 
         //! Lock emit mutextes.
-        void lockEmitMutexes();
+        void lockEmitMutexes(const RJobSettings &settings);
 
         //! Unlock emit mutextes.
-        void unlockEmitMutexes();
+        void unlockEmitMutexes(const RJobSettings &settings);
 
     public slots:
 
