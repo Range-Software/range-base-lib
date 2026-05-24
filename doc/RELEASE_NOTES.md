@@ -1,0 +1,76 @@
+## Version 1.0.0
+
+### RLogger
+
+- `getPrintThreadIdEnabled()`: missing `RLocker` guard added; the member was read
+  without a lock while all other getters were protected, creating a data race.
+- `print(const QString &)`: local variable renamed from `messages` to `lines` to
+  eliminate shadowing of the member `this->messages`; loop converted to
+  range-based.
+- `setHalted()`: redundant second lock acquisition removed; the post-unlock check
+  now tests `!halt` directly instead of calling `getHalted()` again.
+- `logHandler` initialiser changed from `0` to `nullptr`.
+- `getFile()`: redundant top-level const on the by-value return type removed.
+- `timestamp()`: parameter changed from `const QString` (by value) to
+  `const QString &`.
+- `timerStack` member changed from `QList<QElapsedTimer>` to `QStack<QElapsedTimer>`;
+  `push_front`/`first`/`pop_front` updated to `push`/`top`/`pop` throughout
+  `indent`/`unindent`.
+- `print(const RMessage &)`: two separate `QTextStream(stderr/stdout)` temporary
+  constructions consolidated into a single named `QTextStream`.
+- `_init()`: stale "Copy unprocessed messages." TODO comment replaced with an
+  explanation that `messages`, `timerStack`, and `prefixStack` are intentionally
+  not copied to avoid cloning active state.
+- Persistent log file handle: `openLogFile()`/`closeLogFile()` helpers introduced;
+  `printToFile()` now reuses a single open `QFile` and `QTextStream` across calls.
+  The file is reopened automatically when `QFileInfo::exists()` reports it gone
+  (transparent log-rotation support). `setFile()` and the destructor close the
+  handle. `_init()` closes any open handle before overwriting `logFileName`.
+
+### RJob / RJobManager — thread safety
+
+- `RJobSettings::_init()`: `emitMutexList` was silently omitted from copy
+  constructor and `operator=`; it is now copied along with the other members.
+- `RJob::jobFinished` changed from `bool` to `std::atomic<bool>`, eliminating the
+  data race between the worker-thread write in `run()` and main-thread reads in
+  `RJobManager` (`getNRunning`, `getRunningIDs`, `findFinishedJob`).
+- `RJob::defaultJobSettings` protected with a `QReadWriteLock`;
+  `getDefaultJobSettings()` now returns by value under a read lock instead of
+  returning a reference.
+- `lastID` file-scope global changed to `std::atomic<uint>`, eliminating the data
+  race when multiple `RJob` objects are constructed concurrently.
+- `RJob::run()` snapshots `jobSettings` into a local `const RJobSettings` at entry,
+  eliminating the data race between the worker thread reading settings and the
+  main thread mutating them via `setBlocking`/`setParallel`/`setNOmpThreads`; the
+  snapshot is also passed to `lockEmitMutexes`/`unlockEmitMutexes`, eliminating the
+  concurrent-access race on the emit mutex list.
+- `RJobManager`: all four `QObject::connect` calls in `startJob()` now use
+  `Qt::QueuedConnection`, enforcing that `onJobStarted`/`onJobFinished`/`onJobFailed`/
+  `onJobBlocking` always execute on the manager's event-loop thread.
+- `RJobManager`: `QRecursiveMutex jobsMutex` added; `submit()`, `getNWaiting()`,
+  `getNRunning()`, `getRunningIDs()`, and all four slot handlers acquire it,
+  protecting `waitingJobs`, `waitingParallelJobs`, `runningJobs`, and `jobIsStarting`
+  against concurrent `submit()` calls from non-manager threads.
+
+### Bug fixes
+
+- `RBook::enable()`: after the backwards scan for the nearest enabled predecessor
+  the computed value was unconditionally overwritten with `0`. Added a `found`
+  flag so the fallback assignment only executes when no enabled predecessor
+  exists.
+- `RValueTable::get()`: `lower_bound()` result was dereferenced before checking for
+  `end()`. When the key exceeds all entries or the table is empty this caused
+  undefined behaviour. An early-return clamping to the last entry is now applied
+  before any dereference.
+- `RValueTable::operator==()`: key and value comparisons divided by the current
+  table entry without guarding against zero, risking division-by-zero
+  undefined behaviour. Comparisons now fall back to absolute difference when
+  the denominator is within `RConstants::eps` of zero.
+- `RProgress`: default constructor left `pulseType`, `progressInitializeHandler`, and
+  `progressFinalizeHandler` uninitialised (uninitialized function pointers). All
+  three are now explicitly zero-initialised in the member initialiser list.
+  `_init()` also failed to copy `pulseType` and `lastFraction` in copy/assign
+  paths; both are now included.
+- `RStopWatch`: default constructor called the no-op `_init()`, leaving
+  `startTime` and `pauseTime` as indeterminate values. Constructor now calls
+  `reset()` so both members are always initialised to a valid timestamp.
