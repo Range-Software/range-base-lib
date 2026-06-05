@@ -1,6 +1,8 @@
 ## Version 1.0.0
 
-### RLogger
+### Improvements
+
+#### RLogger
 
 - `getPrintThreadIdEnabled()`: missing `RLocker` guard added; the member was read
   without a lock while all other getters were protected, creating a data race.
@@ -27,7 +29,7 @@
   (transparent log-rotation support). `setFile()` and the destructor close the
   handle. `_init()` closes any open handle before overwriting `logFileName`.
 
-### RJob / RJobManager — thread safety
+#### RJob / RJobManager — thread safety
 
 - `RJobSettings::_init()`: `emitMutexList` was silently omitted from copy
   constructor and `operator=`; it is now copied along with the other members.
