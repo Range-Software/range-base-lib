@@ -79,3 +79,8 @@ target_link_libraries(range-base-lib
         Qt6::Core
         common_defines
 )
+
+# Unit tests (opt-in via -DRANGE_BUILD_TESTS=ON)
+if(RANGE_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
