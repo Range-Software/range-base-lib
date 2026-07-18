@@ -14,6 +14,10 @@ namespace RFileTools
     //! Write binary file.
     bool writeBinaryFile(const QString &fileName, const QByteArray &byteArray);
 
+    //! Write binary file atomically (write to a temporary file and rename).
+    //! On failure the previous file content is left untouched.
+    bool writeBinaryFileAtomic(const QString &fileName, const QByteArray &byteArray);
+
     //! Read ascii file.
     bool readAsciiFile(const QString &fileName, QByteArray &byteArray);
 

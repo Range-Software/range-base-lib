@@ -1,3 +1,18 @@
+## Version 1.0.2
+
+### Improvements
+
+#### RFileTools
+
+- Added `writeBinaryFileAtomic()`: crash-safe alternative to `writeBinaryFile()`.
+  The content is written to a temporary file in the target directory and
+  atomically renamed over the target on success (`QSaveFile`), so the target
+  always contains either the complete old or the complete new content — an
+  interrupted or failed write leaves the previous file untouched. Unlike
+  `writeBinaryFile()`, a short write is detected and reported as failure.
+
+---
+
 ## Version 1.0.1
 
 ### Improvements

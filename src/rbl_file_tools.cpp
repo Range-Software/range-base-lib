@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QFile>
+#include <QSaveFile>
 
 #include "rbl_file_tools.h"
 #include "rbl_logger.h"
@@ -87,6 +88,68 @@ bool RFileTools::writeBinaryFile(const QString &fileName, const QByteArray &byte
         RLogger::info("FileService: Successfuly wrote \"%ld\" bytes to \"%s\".\n",bytesOut,outFile.fileName().toUtf8().constData());
 
         outFile.close();
+    }
+    catch (const std::exception &e)
+    {
+        RLogger::error("FileService: Failed to write binary file \"%s\". %s\n", fileName.toUtf8().constData(),e.what());
+        R_LOG_TRACE_RETURN(false);
+    }
+    catch (const RError &e)
+    {
+        RLogger::error("FileService: Failed to write binary file \"%s\". %s\n", fileName.toUtf8().constData(),e.getMessage().toUtf8().constData());
+        R_LOG_TRACE_RETURN(false);
+    }
+    catch (...)
+    {
+        RLogger::error("FileService: Failed to write binary file \"%s\".\n", fileName.toUtf8().constData());
+        R_LOG_TRACE_RETURN(false);
+    }
+    R_LOG_TRACE_RETURN(true);
+}
+
+bool RFileTools::writeBinaryFileAtomic(const QString &fileName, const QByteArray &byteArray)
+{
+    R_LOG_TRACE_IN;
+    RLogger::info("FileService: Writing binary file (atomic) \"%s\".\n",fileName.toUtf8().constData());
+
+    try
+    {
+        QString dirPath(QFileInfo(fileName).absolutePath());
+        QDir outDir;
+        if (!outDir.exists(dirPath))
+        {
+            if (!outDir.mkpath(dirPath))
+            {
+                R_LOG_TRACE_OUT;
+                throw RError(RError::Type::WriteFile,R_ERROR_REF,
+                             "Failed to create directory \"%s\".",
+                             dirPath.toUtf8().constData());
+            }
+        }
+
+        QSaveFile outFile(fileName);
+
+        if(!outFile.open(QIODevice::WriteOnly))
+        {
+            R_LOG_TRACE_OUT;
+            throw RError(RError::Type::OpenFile,R_ERROR_REF,
+                         "Failed to open binary file \"%s\" for writing. %s.",
+                         outFile.fileName().toUtf8().constData(),
+                         outFile.errorString().toUtf8().constData());
+        }
+
+        qint64 bytesOut = outFile.write(byteArray,byteArray.size());
+
+        if (bytesOut != byteArray.size() || !outFile.commit())
+        {
+            R_LOG_TRACE_OUT;
+            throw RError(RError::Type::WriteFile,R_ERROR_REF,
+                         "Failed to write binary file \"%s\". %s.",
+                         outFile.fileName().toUtf8().constData(),
+                         outFile.errorString().toUtf8().constData());
+        }
+
+        RLogger::info("FileService: Successfuly wrote \"%ld\" bytes to \"%s\".\n",bytesOut,outFile.fileName().toUtf8().constData());
     }
     catch (const std::exception &e)
     {
