@@ -246,8 +246,14 @@ void RLogger::printToFile(qint64 pTime, const QString &cppString) const
 {
     if (this->logFileName.isEmpty())
         return;
-    if (this->logStream && !QFileInfo::exists(this->logFileName))
-        this->closeLogFile();
+    // Checking the file on every message costs a stat() call under the global
+    // logger lock; a rotated (removed) log file is detected within a second.
+    if (this->logStream && (!this->logFileCheckTimer.isValid() || this->logFileCheckTimer.elapsed() >= RLogger::logFileCheckIntervalMs))
+    {
+        this->logFileCheckTimer.start();
+        if (!QFileInfo::exists(this->logFileName))
+            this->closeLogFile();
+    }
     if (!this->logStream)
         this->openLogFile();
     if (!this->logStream)

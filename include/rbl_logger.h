@@ -81,6 +81,9 @@ class RLogger
 
     protected:
 
+        //! Minimum interval between checks whether the log file still exists.
+        static constexpr qint64 logFileCheckIntervalMs = 1000;
+
         //! List of unprocessed messages.
         std::vector<RMessage> messages;
         //! Log file name.
@@ -89,6 +92,8 @@ class RLogger
         mutable QFile *logFile = nullptr;
         //! Text stream over logFile.
         mutable QTextStream *logStream = nullptr;
+        //! Time since the log file was last checked for existence (e.g. removed by log rotation).
+        mutable QElapsedTimer logFileCheckTimer;
         //! Log level.
         RLogLevelMask logLevel;
         //! Logger halted state.

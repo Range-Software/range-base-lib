@@ -1,3 +1,15 @@
+## Version 1.2.1
+
+### Improvements
+
+#### RLogger
+
+- The log file is checked for existence (e.g. removal by log rotation) at most
+  once per second instead of on every message, which saves a `stat()` call per
+  log line made while holding the global logger lock
+
+---
+
 ## Version 1.2.0
 
 ### Improvements
