@@ -1,4 +1,4 @@
-#include <QtTest>
+#include <QTest>
 
 #include "rbl_statistics.h"
 #include "rbl_rvector.h"

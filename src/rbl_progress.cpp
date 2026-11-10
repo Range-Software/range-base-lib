@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <cmath>
 
 #include "rbl_progress.h"

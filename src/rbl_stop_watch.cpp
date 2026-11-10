@@ -1,5 +1,4 @@
 #include <QDateTime>
-#include <cmath>
 
 #include "rbl_stop_watch.h"
 

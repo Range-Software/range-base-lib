@@ -8,6 +8,12 @@
   once per second instead of on every message, which saves a `stat()` call per
   log line made while holding the global logger lock
 
+#### Includes
+
+- Unused includes are removed from `rbl_tool_input.h`, `rbl_tool_task.h` and from
+  source files, and tests include `<QTest>` instead of the larger `<QtTest>`. Code
+  that received Qt headers through these files has to include them directly
+
 ---
 
 ## Version 1.2.0

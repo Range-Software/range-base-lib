@@ -1,8 +1,6 @@
 #ifndef RBL_TOOL_TASK_H
 #define RBL_TOOL_TASK_H
 
-#include <QObject>
-
 #include "rbl_job.h"
 #include "rbl_tool_input.h"
 

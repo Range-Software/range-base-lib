@@ -1,4 +1,4 @@
-#include <QtTest>
+#include <QTest>
 
 #include "rbl_rmatrix.h"
 #include "rbl_rvector.h"

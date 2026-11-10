@@ -1,7 +1,6 @@
 #ifndef RBL_TOOL_INPUT_H
 #define RBL_TOOL_INPUT_H
 
-#include <QString>
 #include <QList>
 #include <QSharedPointer>
 
